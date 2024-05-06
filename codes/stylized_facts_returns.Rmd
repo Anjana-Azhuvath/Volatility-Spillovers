@@ -1,0 +1,161 @@
+---
+title: "stylized_facts_returns"
+author: "Anjana Raj A"
+date: "2024-04-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Loading Data
+```{r Loading the Returns series}
+close=read.csv("/Users/anjanaraja/Downloads/spr_24/directed_studies/repo/codes/ClosingPrice.csv")
+close=na.locf(close)
+ret=read.csv(("/Users/anjanaraja/Downloads/spr_24/directed_studies/repo/codes/Returns.csv"))
+```
+#Plotting Returns and Closing Price
+```{r}
+library(ggplot2)
+close$Date=as.Date(close$Date)
+ret$Date=as.Date(ret$Date)
+#Korea
+par(mfrow=c(1,2))
+plot(close$Date, close$Korea, type="l",main="Closing Price:Korea", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$Korea, type="l",main="Returns:Korea",xlab="Years", ylab="Log Returns",col="blue")
+
+#Saudi
+par(mfrow=c(1,2))
+plot(close$Date, close$Saudi, type="l",main="Closing Price:Saudi Arabia", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$Saudi, type="l",main="Returns:Saudi Arabia",xlab="Years", ylab="Log Returns",col="blue")
+
+#Taiwan
+par(mfrow=c(1,2))
+plot(close$Date, close$Taiwan, type="l",main="Closing Price:Taiwan", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$Taiwan, type="l",main="Returns:Taiwan",xlab="Years", ylab="Log Returns",col="blue")
+
+#Mexico
+par(mfrow=c(1,2))
+plot(close$Date, close$Mexico, type="l",main="Closing Price:Mexico", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$Mexico, type="l",main="Returns:Mexico",xlab="Years", ylab="Log Returns",col="blue")
+
+#USA
+par(mfrow=c(1,2))
+plot(close$Date, close$USA, type="l",main="Closing Price:USA", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$USA, type="l",main="Returns:USA",xlab="Years", ylab="Log Returns",col="blue")
+
+#CHINA
+par(mfrow=c(1,2))
+plot(close$Date, close$China, type="l",main="Closing Price:China", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$China, type="l",main="Returns:China",xlab="Years", ylab="Log Returns",col="blue")
+
+#HongKong
+par(mfrow=c(1,2))
+plot(close$Date, close$HongKong, type="l",main="Closing Price:HongKong", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$HongKong, type="l",main="Returns:HongKong",xlab="Years", ylab="Log Returns",col="blue")
+
+#Canada
+par(mfrow=c(1,2))
+plot(close$Date, close$Canada, type="l",main="Closing Price:Canada", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$Canada, type="l",main="Returns:Canada",xlab="Years", ylab="Log Returns",col="blue")
+
+#UAE
+par(mfrow=c(1,2))
+plot(close$Date, close$UAE, type="l",main="Closing Price:UAE", xlab="Years", ylab="Closing Price")
+plot(ret$Date, ret$UAE, type="l",main="Returns:UAE",xlab="Years", ylab="Log Returns",col="blue")
+```
+
+#Testing for Autocorrelation
+```{r}
+library(testcorr)
+# for(i in c(1:9)){
+#  result=ac.test(ret[,i], max.lag=30) 
+# }
+
+ac.test(ret$Korea, max.lag=30)
+ac.test(ret$Saudi, max.lag=30)
+ac.test(ret$Taiwan, max.lag=30)
+ac.test(ret$Mexico, max.lag=30)
+ac.test(ret$USA, max.lag=30)
+ac.test(ret$China, max.lag=30)
+ac.test(ret$Canada, max.lag=30)
+ac.test(ret$UAE, max.lag=30)
+ac.test(ret$HongKong, max.lag=30)
+```
+#Testing for iid
+```{r}
+iid.test(ret$Korea, max.lag=30)
+iid.test(ret$Saudi, max.lag=30)
+iid.test(ret$Taiwan, max.lag=30)
+iid.test(ret$Mexico, max.lag=30)
+iid.test(ret$USA, max.lag=30)
+iid.test(ret$China, max.lag=30)
+iid.test(ret$Canada, max.lag=30)
+iid.test(ret$UAE, max.lag=30)
+iid.test(ret$HongKong, max.lag=30)
+```
+#Testing for normality
+```{r}
+
+#SAUDI
+par(mfrow = c(1,1))
+qqnorm(ret$Saudi,main = "Checking for normality of Saudi Arabia Returns")
+qqline(ret$Saudi)
+
+#MEXICO
+
+qqnorm(ret$Mexico,main = "Checking for normality of Mexico Returns")
+qqline(ret$Mexico)
+
+#TAIWAN
+
+qqnorm(ret$Taiwan,main = "Checking for normality of Taiwan Returns")
+qqline(ret$Taiwan)
+
+#KOREA
+
+qqnorm(ret$Korea,main = "Checking for normality of Korean Returns")
+qqline(ret$Korea)
+
+#CANADA
+
+qqnorm(ret$Canada,main = "Checking for normality of Canadian Returns")
+qqline(ret$Canada)
+
+#USA
+
+qqnorm(ret$USA,main = "Checking for normality of USA Returns")
+qqline(ret$USA)
+
+#CHINA
+
+qqnorm(ret$China,main = "Checking for normality of China Returns")
+qqline(ret$China)
+
+#UAE
+
+qqnorm(ret$UAE,main = "Checking for normality of UAE Returns")
+qqline(ret$UAE)
+
+#UAE
+
+qqnorm(ret$HongKong,main = "Checking for normality of Hong Kong Returns")
+qqline(ret$HongKong)
+
+```
+#Testing for Stationarity
+```{r}
+library(urca)
+test=
+kpss.stat=rep(0,9)
+ret=ret[,-1]
+
+for(i in c(1:8)){
+  test=ur.kpss(ret[,i],type = "mu")
+  kpss.stat[i]=test@teststat
+}
+test@cval
+kpss.stat[2]
+kpss.stat
+ur.kpss(ret$UAE, type="mu")
+```

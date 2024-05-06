@@ -1,0 +1,102 @@
+---
+title: "Causality"
+author: "Anjana Raj A"
+date: "2024-04-20"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+volatility=read.csv("/Users/anjanaraja/Downloads/spr_24/directed_studies/repo/codes/VolatiliityEstimates.csv")
+```
+#Creating a variance Matrix for each trade group
+```{r}
+#Plot of MAT1:Taiwan
+Date=as.Date(volatility$Date)
+plot(Date, volatility$cvol.ta, main="Conditional Volatilities", xlab="Time" , ylab="variances", type="l", col="red")
+lines(Date, volatility$cvol.us, col="blue")
+lines(Date, volatility$cvol.ch , col="green")
+lines(Date, volatility$cvol.hk, col="black")
+legend("topleft",legend=c("Taiwan","USA","China","Hong Kong"), fill=c("red","blue","green","black"), cex=0.5)
+#Plot of MAT2:Korea
+Date=as.Date(volatility$Date)
+plot(Date, volatility$cvol.ko, main="Conditional Volatilities", xlab="Time" , ylab="variances", type="l", col="orange")
+lines(Date, volatility$cvol.us, col="hotpink")
+lines(Date, volatility$cvol.ch , col="green")
+lines(Date, volatility$cvol.hk, col="blue")
+legend("topleft",legend=c("Korea","USA","China","Hong Kong"), fill=c("orange","yellow","green","blue"), cex=0.5)
+#Plot of MAT3:Korea
+Date=as.Date(volatility$Date)
+plot(Date, volatility$cvol.mx, main="Conditional Volatilities", xlab="Time" , ylab="variances", type="l", col="darkmagenta")
+lines(Date, volatility$cvol.us, col="cyan")
+lines(Date, volatility$cvol.ch , col="green")
+lines(Date, volatility$cvol.cd, col="black")
+legend("topleft",legend=c("Mexico","USA","China","Canada"), fill=c("darkmagenta","cyan","green","black"), cex=0.5)
+
+
+```
+```{r}
+#Testing for Correlations
+cor(mat1)
+```
+
+```{r}
+#Taiwan-us-china-hongkong
+mat1 =matrix(cbind(volatility$cvol.ta, 
+                        volatility$cvol.ch, 
+                        volatility$cvol.us, 
+                        volatility$cvol.hk), nrow = 3399, ncol = 4)
+colnames(mat1)=c("TAIWAN","CHINA","USA","HONGKONG")
+#Korea-us-china-hongkong
+mat2 =matrix(cbind(volatility$cvol.ko, 
+                        volatility$cvol.ch, 
+                        volatility$cvol.us, 
+                        volatility$cvol.hk), nrow = 3399, ncol = 4)
+colnames(mat2)=c("KOREA","CHINA","USA","HONGKONG")
+#Mexico-us-canada-china
+mat3 =matrix(cbind(volatility$cvol.mx, 
+                        volatility$cvol.ch, 
+                        volatility$cvol.us, 
+                        volatility$cvol.cd), nrow = 3399, ncol = 4)
+colnames(mat3)=c("MEXICO","CHINA","USA","CANDA")
+#Saudi-US-China-jp
+mat4 =matrix(cbind(volatility$cvol.sa, 
+                        volatility$cvol.ch, 
+                        volatility$cvol.us,
+                   volatility$cvol.jp), nrow = 3399, ncol = 4)
+colnames(mat4)=c("SAUDI","CHINA","USA","JAPAN")
+
+```
+#Selecting VAR
+```{r}
+library(vars)
+Svar.mat1=VARselect(mat1, lag.max = 30, type = "const", season = NULL)  #LAG 4
+Svar.mat2=VARselect(mat2, lag.max = 30, type = "const", season = NULL)  #LAG 7
+Svar.mat3=VARselect(mat3, lag.max = 30, type = "const", season = NULL)  #LAG 16
+Svar.mat4=VARselect(mat4, lag.max = 30, type = "const", season = NULL)  #LAG 7
+
+```
+#Calculating Variance
+```{r}
+var.ta=VAR(mat1, p=7, type="const", season=NULL)
+var.ko=VAR(mat2, p=7, type="const", season=NULL)
+var.mx=VAR(mat3, p=16, type="const", season=NULL)
+var.sa=VAR(mat4, p=7, type="const", season=NULL)
+```
+#Testing for Causality
+```{r}
+ta.cause=causality(var.ta, cause = "TAIWAN")
+ko.cause=causality(var.ko, cause = "KOREA")
+mx.cause=causality(var.mx, cause = "MEXICO")
+sa.cause=causality(var.sa, cause = "SAUDI")
+```
+#Results
+```{r}
+ta.cause
+ko.cause
+mx.cause
+sa.cause
+```

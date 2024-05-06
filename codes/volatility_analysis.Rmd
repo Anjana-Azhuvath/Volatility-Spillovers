@@ -1,0 +1,176 @@
+---
+title: 'Volatility Analysis: April 2024'
+author: "Anjana Raj A"
+date: "2024-04-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Loading Libraries
+
+```{r}
+#install.packages("IntroCompFinR", repos="http://R-Forge.R-project.org")
+library(fGarch)
+```
+
+```{r}
+# setwd("/Users/anjanaraja/Downloads/directed_studies/data_emerging_markets")
+returns=read.csv("/Users/anjanaraja/Downloads/spr_24/directed_studies/repo/codes/Returns.csv")
+returns$Date=as.Date(returns$Date)
+```
+#Fitting GARCH Models
+```{r}
+#TAIWAN
+g.fit.ta=garchFit(formula= ~ garch(2,1), data=returns$Taiwan,
+               trace = FALSE)
+
+g.fit.ta@fit$ics["AIC"]
+resid.garch=g.fit.ta@residuals^2
+acf(resid.garch)
+g.fit.ta
+```
+
+```{r}
+
+#Korea
+g.fit.ko=garchFit(formula= ~ garch(1,1), data=returns$Korea,
+               trace = FALSE)
+g.fit.ko@fit$llh
+g.fit.ko@fit$ics["AIC"]
+resid.garch=g.fit.ko@residuals^2
+acf(resid.garch)
+```
+
+```{r}
+#USA
+fit.us=auto.arima(returns$USA,seasonal=FALSE)
+fit.us
+
+resid=fit.us$residuals
+res.sq=resid^2
+acf(res.sq)
+
+g.fit.us=garchFit(formula= ~ arma(1,0,0) + garch(1,1), data=returns$USA,
+               trace = FALSE)
+g.fit.us@fit$llh
+g.fit.us@fit$ics["AIC"]
+ resid.garch=g.fit.us@residuals^2
+ acf(resid.garch)
+summary(g.fit.us)
+```
+```{r}
+#CHINA
+
+fit.ch=auto.arima(returns$China,seasonal=FALSE)
+fit.ch
+resid=fit.ch$residuals
+res.sq=resid^2
+acf(res.sq)
+
+
+g.fit.ch=garchFit(formula= ~ garch(1,1), data=returns$China,
+               trace = FALSE)
+g.fit.ch@fit$llh
+g.fit.ch@fit$ics["AIC"]
+```
+```{r}
+#HONG KONG
+g.fit.hk=garchFit(formula= ~ garch(1,1), data=returns$HongKong,
+               trace = FALSE)
+g.fit.hk@fit$llh
+g.fit.hk@fit$ics["AIC"]
+```
+
+```{r}
+#Japan
+# which(is.na(returns$Japan))
+# returns$UAE=as.numeric(returns$Japan)
+g.fit.jp=garchFit(formula= ~ garch(1,1), data=returns$Japan,
+               trace = FALSE)
+g.fit.jp@fit$llh
+g.fit.jp@fit$ics["AIC"]
+```
+```{r}
+#Canada
+fit.cd=auto.arima(returns$Canada,seasonal=FALSE)
+fit.cd
+
+resid=fit.cd$residuals
+res.sq=resid^2
+acf(res.sq)
+
+g.fit.cd=garchFit(formula= ~ arma(1,0,1) + garch(1,1), data=returns$Canada,
+               trace = FALSE)
+g.fit.cd@fit$llh
+g.fit.cd@fit$ics["AIC"]
+```
+```{r}
+#Mexico
+g.fit.mx=garchFit(formula= ~ garch(1,1), data=returns$Mexico,
+               trace = FALSE)
+g.fit.mx@fit$llh
+g.fit.mx@fit$ics["AIC"]
+acf(g.fit.mx@residuals^2)
+```
+
+```{r}
+#Saudi
+g.fit.sa=garchFit(formula= ~ garch(2,1), data=returns$Saudi,
+               trace = FALSE)
+g.fit.sa@fit$llh
+g.fit.sa@fit$ics["AIC"]
+resid=g.fit.sa@residuals^2
+res.sq=resid^2
+acf(res.sq)
+```
+
+
+
+#Extracting Volatilities
+```{r}
+cvol.us=g.fit.us@h.t
+cvol.ch=g.fit.ch@h.t
+cvol.cd=g.fit.cd@h.t
+cvol.hk=g.fit.hk@h.t
+cvol.ta=g.fit.ta@h.t
+cvol.ko=g.fit.ko@h.t
+cvol.mx=g.fit.mx@h.t
+cvol.sa=g.fit.sa@h.t
+cvol.jp=g.fit.jp@h.t
+
+volatile=cbind(cvol.us, cvol.ch,cvol.hk,cvol.cd,
+               cvol.ko, cvol.mx,cvol.sa,cvol.ta,cvol.jp)
+volatile=data.frame(volatile)
+volatile$Date=returns$Date
+
+write.csv(volatile,file="VolatiliityEstimates.csv", row.names=TRUE)
+```
+
+```{r}
+#Plotting Residuals
+acf(g.fit.jp@residuals^2)
+```
+
+```{r}
+g.fit.ko
+coeff.ta=g.fit.ta@fit$coef
+coeff.ta
+a=coeff.ta[3]+coeff.ta[4]+coeff.ta[5]
+coeff.sa=g.fit.sa@fit$coef
+b=coeff.sa[3]+coeff.sa[4]+coeff.sa[5]
+coeff.mx=g.fit.mx@fit$coef
+c=coeff.mx[3]+coeff.mx[4]
+coeff.ko=g.fit.ko@fit$coef
+d=coeff.ko[3]+coeff.ko[4]
+```
+
+```{r}
+coeff.ch=g.fit.ch@fit$coef
+e=d=coeff.ch[3]+coeff.ch[4]
+g.fit.ch
+
+```
+

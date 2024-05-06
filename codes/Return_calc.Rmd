@@ -1,0 +1,101 @@
+---
+title: "returns_cleaning"
+author: "Anjana Raj A"
+date: "2024-04-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(quantmod)
+# Define the start and end dates
+start_date <- "2010-04-01"
+end_date <- "2024-03-31"
+Saudi=getSymbols("^TASI.SR", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+Mexico=getSymbols("^MXX", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+Taiwan=getSymbols("^TWII", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+Korea=getSymbols("^KS11", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+
+###Export Partners
+
+Japan=getSymbols("^N225", src = "yahoo", from = start_date,to = end_date,auto.assign = FALSE)
+Hong_Kong=getSymbols("^HSI", src = "yahoo", from = start_date,to = end_date,auto.assign = FALSE)
+China=getSymbols("000001.SS", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+USA=getSymbols("^GSPC", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+Canada=getSymbols("^GSPTSE", src = "yahoo", from = start_date, to = end_date,auto.assign = FALSE)
+```
+
+```{r}
+#Calculating the smallest index length
+index_length=c(length(index(Mexico)),
+length(index(Saudi)),
+length(index(Korea)),
+length(index(Taiwan)),
+length(index(USA)),
+length(index(China)),
+length(index(Hong_Kong)),
+length(index(Japan)),
+length(index(Canada)))
+```
+
+```{r}
+#Extracting and merging
+min=min(index_length)
+
+ko.close=data.frame(Korea$KS11.Close[1:min])
+sa.close=data.frame(Saudi$TASI.SR.Close[1:min])
+ta.close=data.frame(Taiwan$TWII.Close[1:min])
+mx.close=data.frame(Mexico$MXX.Close[1:min])
+jp.close=data.frame(Japan$N225.Close[1:min])
+us.close=data.frame(USA$GSPC.Close[1:min])
+ch.close=data.frame(China[,"000001.SS.Close"][1:min])
+cd.close=data.frame(Canada$GSPTSE.Close[1:min])
+hk.close=data.frame(Hong_Kong$HSI.Close[1:min])
+
+c1=cbind(ko.close,sa.close,ta.close,mx.close,
+        us.close,ch.close,cd.close,jp.close,hk.close)
+ind=as.Date(index(Korea$KS11.Close[1:min]))
+c1$Date=ind
+colnames(c1)=c("Korea","Saudi","Taiwan","Mexico","USA","China",
+               "Canada","Japan","HongKong","Date")
+nrow(c1)
+write.csv(c1, file ="ClosingPrice.csv", row.names=TRUE)
+```
+
+```{r}
+library(zoo)
+close=c1
+#Filling Missing values
+close=na.locf(close)
+```
+
+########################################
+CALCULATING RETURNS
+########################################
+```{r}
+# List of data frames and corresponding close prices
+dim(close)
+#Function to calculate log returns
+lndiff=function(data){
+  lnret=diff(log(data))
+  return(lnret)
+}
+
+#Loop to implement function on 8 variables in close
+n=nrow(close)
+ret=matrix(NA, nrow=n-1, ncol=10)
+colnames(ret)=colnames(close[1:10])
+
+for(i in c(1:9)){
+  ret[,i]=lndiff(close[,i])
+}
+#Creating a dataframe
+nrow(ret)
+ret.df= as.data.frame(ret)
+ret.df$Date=c1$Date[-1]
+getwd()
+write.csv(ret.df, file= "Returns.csv",row.names = TRUE)
+```
