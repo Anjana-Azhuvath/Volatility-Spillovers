@@ -1,5 +1,3 @@
-Sure, here's a suggested README.md file for your GitHub repository based on the content in the "Volatility_Spillovers__Draft___23_April_2024.pdf" file:
-
 # Global Equity Market Volatility Spillovers
 
 This repository contains the code and data for an empirical study on volatility dynamics and spillover effects across major global equity markets. The research analyzes volatility interdependencies and transmission mechanisms among developed and emerging stock markets, shedding light on financial market linkages in an increasingly interconnected global economy.
