@@ -22,9 +22,7 @@ Key analyses include:
 
 ## Usage
 
-1. Clone the repository: `git clone https://github.com/your-username/global-equity-volatility-spillovers.git`
-2. Navigate to the project directory: `cd global-equity-volatility-spillovers`
-3. Follow the instructions in the `docs/` directory to run the analysis scripts and reproduce the results.
+1. Clone the repository: `git@github.com:Anjana-Azhuvath/Volatility-Spillovers.git`
 
 ## Dependencies
 
